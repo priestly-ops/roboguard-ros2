@@ -17,7 +17,6 @@ ENV WORKSPACE=/ros2_ws
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-colcon-common-extensions \
-    python3-rosdep \
     python3-setuptools \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -31,11 +30,9 @@ WORKDIR ${WORKSPACE}/src
 COPY guardian_msgs/ ./guardian_msgs/
 COPY guardian/ ./guardian/
 
+# Build — ros:humble-ros-base already ships all ROS2 runtime deps
 WORKDIR ${WORKSPACE}
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
-    rosdep init || true && \
-    rosdep update && \
-    rosdep install --from-paths src --ignore-src -r -y && \
     colcon build --packages-select guardian_msgs guardian \
       --cmake-args -DCMAKE_BUILD_TYPE=Release"
 
