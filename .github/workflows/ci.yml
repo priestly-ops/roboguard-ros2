@@ -99,25 +99,26 @@ jobs:
       - name: Resolve dependencies
         run: |
           cd /ros2_ws
-          source /opt/ros/humble/setup.bash
           rosdep init || true
           rosdep update
           rosdep install --from-paths src --ignore-src -r -y
 
       - name: Build
+        shell: bash
         run: |
-          cd /ros2_ws
           source /opt/ros/humble/setup.bash
+          cd /ros2_ws
           colcon build \
             --packages-select guardian_msgs guardian \
             --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             --event-handlers console_cohesion+
 
       - name: Test
+        shell: bash
         run: |
-          cd /ros2_ws
           source /opt/ros/humble/setup.bash
-          source install/setup.bash
+          source /ros2_ws/install/setup.bash
+          cd /ros2_ws
           colcon test \
             --packages-select guardian \
             --event-handlers console_cohesion+

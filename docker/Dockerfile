@@ -63,7 +63,7 @@ COPY config/ ${WORKSPACE}/config/
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 8765    # WebSocket dashboard bridge
+EXPOSE 8765
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["ros2", "launch", "guardian", "guardian.launch.py"]
