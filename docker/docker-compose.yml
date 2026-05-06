@@ -1,0 +1,100 @@
+version: "3.9"
+
+# ROS2 Guardian — Docker Compose
+# =================================
+# Starts: Guardian core + React dashboard + optional simulation
+#
+# Usage:
+#   docker compose up                      # Guardian + dashboard
+#   docker compose --profile sim up        # With simulated robot
+#   docker compose --profile gpu up        # With GPU support (NVIDIA)
+
+services:
+
+  # ── Guardian Core ───────────────────────────────────────────────────────────
+  guardian:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: ros2-guardian:latest
+    container_name: guardian_core
+    restart: unless-stopped
+    network_mode: host          # Required for ROS2 DDS discovery
+    privileged: true            # Required for process monitoring (psutil)
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - CYCLONEDDS_URI=${CYCLONEDDS_URI:-}
+      - GUARDIAN_SLACK_WEBHOOK=${GUARDIAN_SLACK_WEBHOOK:-}
+      - GUARDIAN_ALERT_EMAIL=${GUARDIAN_ALERT_EMAIL:-}
+    volumes:
+      - ../config:/ros2_ws/config:ro
+      - guardian_models:/ros2_ws/models
+      - guardian_logs:/ros2_ws/logs
+    ports:
+      - "8765:8765"             # WebSocket bridge
+    command: >
+      ros2 launch guardian guardian.launch.py
+        config_file:=/ros2_ws/config/default_params.yaml
+    healthcheck:
+      test: ["CMD", "ros2", "node", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── React Dashboard ─────────────────────────────────────────────────────────
+  dashboard:
+    build:
+      context: ../dashboard
+      dockerfile: Dockerfile
+    image: ros2-guardian-dashboard:latest
+    container_name: guardian_dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_WS_URL=ws://localhost:8765
+      - REACT_APP_GUARDIAN_NAMESPACE=guardian
+    depends_on:
+      - guardian
+
+  # ── Simulation (optional profile) ──────────────────────────────────────────
+  simulator:
+    profiles: ["sim"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: ros2-guardian:latest
+    container_name: guardian_simulator
+    network_mode: host
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    command: >
+      ros2 launch guardian guardian_sim.launch.py
+        inject_failures:=true
+        failure_type:=random
+        failure_interval_seconds:=45.0
+    depends_on:
+      - guardian
+
+  # ── GPU variant (optional profile) ─────────────────────────────────────────
+  guardian_gpu:
+    profiles: ["gpu"]
+    extends: guardian
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+volumes:
+  guardian_models:
+    driver: local
+  guardian_logs:
+    driver: local

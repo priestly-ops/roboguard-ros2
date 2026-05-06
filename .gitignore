@@ -1,0 +1,50 @@
+# ROS2 Guardian .gitignore
+
+# ── Build artifacts ───────────────────────────────────────────────────────────
+build/
+install/
+log/
+*.egg-info/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ── ML models (tracked via Git LFS or separate model registry) ────────────────
+models/*.pkl
+models/*.pt
+models/*.onnx
+!models/.gitkeep
+
+# ── Data files ────────────────────────────────────────────────────────────────
+data/*.parquet
+data/*.csv
+data/*.json
+!data/.gitkeep
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+*.env
+secrets.yaml
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+docker/.env
+
+# ── Node / Dashboard ──────────────────────────────────────────────────────────
+dashboard/node_modules/
+dashboard/build/
+dashboard/.env.local

@@ -1,0 +1,52 @@
+# Guardian Default Configuration
+# ================================
+# All parameters can be overridden at launch time via:
+#   ros2 launch guardian guardian.launch.py config_file:=/path/to/custom.yaml
+
+guardian:
+  ros__parameters:
+
+    # ── Health Monitor ────────────────────────────────────────────────────────
+    monitor_rate_hz: 10.0              # Metric publishing rate (Hz)
+    history_window_seconds: 60.0       # Sliding window for statistics
+
+    # Nodes to monitor explicitly. Leave empty to monitor ALL nodes.
+    watched_nodes: []
+
+    # Custom metric probe plugins (dotted path to MetricProbe subclass)
+    probe_plugins: []
+    # probe_plugins:
+    #   - my_robot.probes.BatteryProbe
+    #   - my_robot.probes.MotorTemperatureProbe
+
+    # ── Anomaly Detector ──────────────────────────────────────────────────────
+    model_type: isolation_forest       # isolation_forest | autoencoder | one_class_svm
+    model_path: ""                     # Path to pre-trained model. Empty = train from scratch.
+    window_size: 30                    # Feature window (number of samples)
+    contamination: 0.05                # Expected anomaly fraction
+    alert_cooldown_seconds: 30.0       # Min. time between alerts per node
+    retrain_interval_minutes: 30.0     # 0 = disabled
+
+    # ── Failure Predictor ─────────────────────────────────────────────────────
+    # model_type: lstm                 # Defined per-node in failure_predictor
+    sequence_length: 50
+    prediction_horizon_seconds: 30.0
+    alert_threshold: 0.75              # Warn alert threshold
+    critical_threshold: 0.90           # Critical alert threshold
+    score_publish_rate_hz: 1.0
+
+    # ── Self-Healer ───────────────────────────────────────────────────────────
+    max_restart_attempts: 3
+    restart_cooldown_seconds: 10.0
+    escalation_policy: notify_human    # notify_human | stop_robot | ignore
+    verify_timeout_seconds: 15.0
+    dry_run: false
+
+    # ── Notifications ─────────────────────────────────────────────────────────
+    slack_webhook: ""                  # e.g. https://hooks.slack.com/services/...
+    alert_email: ""
+    pagerduty_key: ""
+
+    # ── Dashboard Bridge ──────────────────────────────────────────────────────
+    websocket_port: 8765
+    websocket_host: "0.0.0.0"

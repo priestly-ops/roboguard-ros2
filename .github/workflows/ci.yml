@@ -1,0 +1,165 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  ROS_DISTRO: humble
+
+jobs:
+
+  # ── Linting ─────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (flake8 + mypy)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install lint tools
+        run: pip install flake8 mypy types-PyYAML
+
+      - name: flake8
+        run: |
+          flake8 guardian/guardian \
+            --max-line-length=100 \
+            --ignore=E501,W503,E203
+
+      - name: mypy
+        run: |
+          mypy guardian/guardian \
+            --ignore-missing-imports \
+            --no-strict-optional \
+            --warn-unused-imports
+        continue-on-error: true  # mypy is advisory until fully typed
+
+  # ── Unit Tests ───────────────────────────────────────────────────────────────
+  unit-tests:
+    name: Unit Tests (pytest)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install \
+            pytest pytest-cov pytest-asyncio \
+            numpy scipy scikit-learn pandas psutil
+
+      - name: Run unit tests
+        run: |
+          cd guardian
+          python -m pytest test/ \
+            --cov=guardian \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            -v
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./guardian/coverage.xml
+          fail_ci_if_error: false
+
+  # ── ROS2 Build & Test ────────────────────────────────────────────────────────
+  ros2-build:
+    name: ROS2 Build & colcon test
+    runs-on: ubuntu-22.04
+    container:
+      image: ros:humble-ros-base
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          apt-get update
+          apt-get install -y python3-pip python3-colcon-common-extensions \
+            python3-rosdep ros-humble-launch-testing-ament-cmake
+
+      - name: Install Python deps
+        run: pip3 install numpy scipy scikit-learn pandas psutil pytest
+
+      - name: Set up workspace
+        run: |
+          mkdir -p /ros2_ws/src
+          cp -r . /ros2_ws/src/ros2-guardian
+
+      - name: Resolve dependencies
+        run: |
+          cd /ros2_ws
+          source /opt/ros/humble/setup.bash
+          rosdep update
+          rosdep install --from-paths src --ignore-src -r -y
+
+      - name: Build
+        run: |
+          cd /ros2_ws
+          source /opt/ros/humble/setup.bash
+          colcon build \
+            --packages-select guardian_msgs guardian \
+            --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            --event-handlers console_cohesion+
+
+      - name: Test
+        run: |
+          cd /ros2_ws
+          source /opt/ros/humble/setup.bash
+          source install/setup.bash
+          colcon test \
+            --packages-select guardian \
+            --event-handlers console_cohesion+
+          colcon test-result --verbose
+
+  # ── Docker Build ─────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          tags: ros2-guardian:ci-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── ML Model Tests ────────────────────────────────────────────────────────────
+  ml-tests:
+    name: ML Model Tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install ML dependencies
+        run: |
+          pip install numpy scipy scikit-learn pandas pytest pytest-asyncio
+
+      - name: Run ML tests
+        run: |
+          python -m pytest guardian/test/test_anomaly_detector.py \
+            guardian/test/test_feature_extractor.py \
+            -v --tb=short

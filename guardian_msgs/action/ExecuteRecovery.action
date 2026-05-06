@@ -1,0 +1,19 @@
+# ExecuteRecovery.action
+# Long-running recovery workflow with progress feedback
+
+# Goal
+string node_name
+string severity
+float32 anomaly_score
+string preferred_strategy       # Optional: force a specific strategy
+---
+# Result
+bool success
+string[] actions_taken
+string final_status
+float32 total_duration_seconds
+---
+# Feedback
+string current_action
+float32 progress_percent
+string status_message

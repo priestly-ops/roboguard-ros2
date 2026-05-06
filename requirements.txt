@@ -1,0 +1,33 @@
+# ROS2 Guardian — Python Dependencies
+# =====================================
+# Install with: pip install -r requirements.txt
+
+# ── Core ─────────────────────────────────────────────────────────────────────
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+psutil>=5.9.0
+pyyaml>=6.0
+
+# ── ML — Anomaly Detection ────────────────────────────────────────────────────
+scikit-learn>=1.3.0
+
+# ── ML — Deep Learning (optional, for LSTM / Autoencoder) ─────────────────────
+# torch>=2.0.0               # Uncomment for GPU support
+# torchvision>=0.15.0
+
+# ── ML — Gradient Boosting (optional fallback for XGBoost predictor) ──────────
+# xgboost>=1.7.0             # Uncomment for XGBoost predictor
+
+# ── Async / Networking ────────────────────────────────────────────────────────
+websockets>=11.0.0
+aiohttp>=3.8.0
+
+# ── Dashboard Bridge ──────────────────────────────────────────────────────────
+# fastapi>=0.100.0           # Optional REST API
+# uvicorn>=0.22.0
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0

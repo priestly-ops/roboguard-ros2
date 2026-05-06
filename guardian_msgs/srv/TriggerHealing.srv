@@ -1,0 +1,8 @@
+# TriggerHealing.srv
+# Manually trigger self-healing for a specific node
+
+string node_name
+string severity       # Optional override: WARN | ERROR | CRITICAL
+---
+bool accepted
+string message

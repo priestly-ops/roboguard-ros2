@@ -1,0 +1,14 @@
+# Request: optionally filter by node name (empty = all nodes)
+string node_name  # empty string = report for all nodes
+bool include_history  # include metric history in response
+
+---
+
+# Response
+bool success
+string message
+guardian_msgs/NodeHealth[] node_states
+float32[] risk_scores        # parallel to node_states
+string[] active_alerts       # alert descriptions currently active
+string report_json           # full JSON serialization of report
+builtin_interfaces/Time generated_at

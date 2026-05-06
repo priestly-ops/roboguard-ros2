@@ -1,0 +1,52 @@
+# Healing Strategy Overrides
+# ===========================
+# Configure per-node healing strategies to override the default escalation ladder.
+# Matched by node_pattern (Python regex against full node name).
+
+healing_strategies:
+
+  # Navigation node: try topic remap before hard restart (has backup topics)
+  - node_pattern: ".*/navigation.*"
+    strategy_order:
+      - soft_restart
+      - topic_remap
+      - parameter_reset
+      - hard_restart
+      - escalate
+    remap_rules:
+      - ["/cmd_vel", "/cmd_vel_backup"]
+      - ["/odom", "/odom_filtered"]
+    max_restart_attempts: 2
+
+  # SLAM: parameter reset often fixes divergence
+  - node_pattern: ".*/slam.*"
+    strategy_order:
+      - parameter_reset
+      - soft_restart
+      - hard_restart
+      - escalate
+    last_good_params:
+      use_sim_time: false
+      resolution: 0.05
+
+  # Hardware drivers: always try hw reinit first
+  - node_pattern: ".*/driver.*"
+    strategy_order:
+      - hw_reinit
+      - soft_restart
+      - hard_restart
+      - escalate
+    reinit_topic: "/hardware/reset"
+    reinit_service: ""
+
+  # Safety-critical nodes: escalate immediately without restart
+  - node_pattern: ".*/safety_monitor.*"
+    strategy_order:
+      - escalate
+    max_restart_attempts: 0
+
+  # Battery / power management: notify only
+  - node_pattern: ".*/power.*"
+    strategy_order:
+      - parameter_reset
+      - escalate
