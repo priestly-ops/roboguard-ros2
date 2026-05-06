@@ -17,9 +17,7 @@ Architecture:
 
 import collections
 import threading
-from typing import Dict, Deque, Optional
-
-import numpy as np
+from typing import Dict, Deque
 import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor

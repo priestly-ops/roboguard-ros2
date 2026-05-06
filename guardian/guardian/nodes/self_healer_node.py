@@ -24,7 +24,7 @@ Healing strategies (in order of escalation):
 import asyncio
 import threading
 import time
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import rclpy
 from rclpy.node import Node
@@ -34,14 +34,9 @@ from rcl_interfaces.msg import ParameterDescriptor
 
 from guardian_msgs.msg import SystemAlert, HealingAction
 from guardian_msgs.action import ExecuteRecovery
-from guardian_msgs.srv import TriggerHealing, GetHealthReport
+from guardian_msgs.srv import TriggerHealing
 from guardian.healing.healing_actions import (
     HealingContext,
-    SoftRestartAction,
-    HardRestartAction,
-    ParameterResetAction,
-    TopicRemapAction,
-    HardwareReinitAction,
     EscalateAction,
 )
 from guardian.healing.recovery_strategies import StrategySelector

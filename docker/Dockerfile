@@ -33,6 +33,7 @@ COPY guardian/ ./guardian/
 
 WORKDIR ${WORKSPACE}
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
+    rosdep init || true && \
     rosdep update && \
     rosdep install --from-paths src --ignore-src -r -y && \
     colcon build --packages-select guardian_msgs guardian \

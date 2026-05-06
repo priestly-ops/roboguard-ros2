@@ -12,7 +12,7 @@ Feature groups:
   - Derived: rate_of_change per metric, rolling statistics
 """
 
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 

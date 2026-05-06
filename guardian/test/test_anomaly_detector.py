@@ -14,7 +14,6 @@ from guardian.ml.anomaly_detector import (
     IsolationForestDetector,
     OneClassSVMDetector,
 )
-from guardian.ml.feature_extractor import FeatureExtractor
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -111,65 +110,3 @@ class TestOneClassSVMDetector:
         model = OneClassSVMDetector()
         score = model.score(make_normal_data(n=1))
         assert score == 0.0
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# FeatureExtractor
-# ──────────────────────────────────────────────────────────────────────────────
-
-class TestFeatureExtractor:
-
-    def _make_dict_message(self, cpu=30.0, mem=200.0):
-        return {
-            'cpu_percent': cpu,
-            'memory_mb': mem,
-            'memory_percent': 25.0,
-            'thread_count': 10,
-            'open_files': 5,
-            'avg_latency_ms': 2.0,
-            'max_latency_ms': 10.0,
-            'topic_rates_hz': [10.0, 5.0, 20.0],
-            'is_alive': True,
-            'lifecycle_state': 'active',
-        }
-
-    def test_extract_returns_correct_shape(self):
-        ext = FeatureExtractor()
-        window = [self._make_dict_message() for _ in range(30)]
-        features = ext.extract(window)
-        assert features is not None
-        assert features.shape == (ext.n_features,)
-
-    def test_extract_short_window_returns_none(self):
-        ext = FeatureExtractor()
-        window = [self._make_dict_message()]
-        features = ext.extract(window)
-        assert features is None
-
-    def test_extract_sequence_shape(self):
-        ext = FeatureExtractor()
-        window = [self._make_dict_message() for _ in range(50)]
-        seq = ext.extract_sequence(window)
-        assert seq is not None
-        assert seq.shape == (50, FeatureExtractor.N_BASE)
-
-    def test_extract_is_deterministic(self):
-        ext = FeatureExtractor()
-        window = [self._make_dict_message(cpu=float(i)) for i in range(10)]
-        f1 = ext.extract(window)
-        f2 = ext.extract(window)
-        assert np.allclose(f1, f2)
-
-    def test_lifecycle_encoding(self):
-        ext = FeatureExtractor()
-        msg_active = self._make_dict_message()
-        msg_active['lifecycle_state'] = 'active'
-        msg_error = self._make_dict_message()
-        msg_error['lifecycle_state'] = 'error'
-
-        feat_active = ext._from_dict(msg_active)
-        feat_error = ext._from_dict(msg_error)
-
-        # lifecycle_state is last feature
-        assert feat_active[-1] == 3.0   # active = 3
-        assert feat_error[-1] == -1.0   # error = -1

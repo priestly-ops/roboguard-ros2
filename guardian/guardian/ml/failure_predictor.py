@@ -11,8 +11,6 @@ Available:
 
 import abc
 import pickle
-from typing import Optional
-
 import numpy as np
 
 
@@ -138,8 +136,6 @@ class LSTMPredictor(FailurePredictorModel):
             X_t = torch.FloatTensor(X)
             y_t = torch.FloatTensor(y)
 
-            # Class-weight balanced BCE loss
-            pos_weight = torch.tensor([(y == 0).sum() / max((y == 1).sum(), 1)]).float()
             loss_fn = nn.BCELoss()
 
             loader = DataLoader(

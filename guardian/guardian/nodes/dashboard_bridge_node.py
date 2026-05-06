@@ -14,8 +14,6 @@ from typing import Set
 import websockets
 import rclpy
 from rclpy.node import Node
-from rcl_interfaces.msg import ParameterDescriptor
-
 from guardian_msgs.msg import NodeHealth, SystemAlert, HealingAction
 from guardian.utils.logger import GuardianLogger
 

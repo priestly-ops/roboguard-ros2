@@ -289,7 +289,7 @@ class ParameterResetAction(BaseHealingAction):
                 param.value = pv
                 req.parameters.append(param)
 
-            future = client.call_async(req)
+            client.call_async(req)
             await asyncio.sleep(2.0)
 
             return HealingResult(
@@ -340,7 +340,7 @@ class TopicRemapAction(BaseHealingAction):
             )
 
         # Trigger hard restart with remap args injected
-        ctx.metadata['respawn_args'] = [f"--ros-args"] + [
+        ctx.metadata['respawn_args'] = ["--ros-args"] + [
             f"-r {src}:={dst}" for src, dst in remap_rules
         ]
         hard = HardRestartAction()
@@ -391,7 +391,7 @@ class HardwareReinitAction(BaseHealingAction):
                 from std_srvs.srv import Trigger
                 client = ctx.ros_node.create_client(Trigger, reinit_service)
                 if client.wait_for_service(timeout_sec=3.0):
-                    future = client.call_async(Trigger.Request())
+                    client.call_async(Trigger.Request())
                     await asyncio.sleep(2.0)
 
             await asyncio.sleep(2.0)  # Allow hardware to reinit

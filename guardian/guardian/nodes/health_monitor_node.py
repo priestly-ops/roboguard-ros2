@@ -16,11 +16,10 @@ Monitored metrics:
 import time
 import psutil
 import threading
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import rclpy
 from rclpy.node import Node
-from rclpy.parameter import Parameter
 from rcl_interfaces.msg import ParameterDescriptor
 from std_msgs.msg import Header
 

@@ -100,6 +100,7 @@ jobs:
         run: |
           cd /ros2_ws
           source /opt/ros/humble/setup.bash
+          rosdep init || true
           rosdep update
           rosdep install --from-paths src --ignore-src -r -y
 

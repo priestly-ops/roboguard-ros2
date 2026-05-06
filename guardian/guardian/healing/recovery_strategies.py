@@ -10,7 +10,7 @@ Selection logic:
 """
 
 import abc
-from typing import List, Optional
+from typing import List
 
 from guardian.healing.healing_actions import (
     BaseHealingAction,

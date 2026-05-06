@@ -23,7 +23,6 @@ from typing import Dict, List, Optional, Deque
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from rclpy.parameter import Parameter
 from rcl_interfaces.msg import ParameterDescriptor
 
 from guardian_msgs.msg import NodeHealth, SystemAlert

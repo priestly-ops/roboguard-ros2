@@ -17,7 +17,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/HealingAction.msg"
   "srv/TriggerHealing.srv"
   "srv/GetHealthReport.srv"
-  "srv/GetHealthReport.srv"
   "action/ExecuteRecovery.action"
   DEPENDENCIES
     builtin_interfaces

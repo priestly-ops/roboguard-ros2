@@ -12,7 +12,6 @@ Available:
 
 import abc
 import pickle
-from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -155,7 +154,6 @@ class AutoencoderDetector(AnomalyDetectorModel):
 
     def _build_model(self, input_dim: int):
         try:
-            import torch
             import torch.nn as nn
 
             class _AE(nn.Module):
