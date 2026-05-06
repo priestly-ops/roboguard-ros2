@@ -27,15 +27,10 @@
 
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-scipy</exec_depend>
-  <exec_depend>python3-sklearn</exec_depend>
+  <exec_depend>python3-scikit-learn</exec_depend>
   <exec_depend>python3-pandas</exec_depend>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_mypy</test_depend>
-  <test_depend>ament_pep8</test_depend>
   <test_depend>python3-pytest</test_depend>
-  <test_depend>launch_testing_ament_cmake</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
